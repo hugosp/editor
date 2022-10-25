@@ -28,8 +28,9 @@ export default {
 		}
 	},
 	watch: {
-		currentTab(val) {
-			if (val) {
+		currentTab(val, o) {
+			console.log(val, o)
+			if (val !== null && val !== this.currentTab) {
 				this.openFile(val);
 				// monacoTree.setSelection(val);
 			}
@@ -77,9 +78,9 @@ export default {
 		openFile(filePath) {
 
 			// Spara undan nuvarande state om de finns
-			if (editor && this.currentTab && editorStates[this.currentTab]) {
-				editorStates[this.currentTab].viewState = editor.saveViewState();
-				editorStates[this.currentTab].model = editor.getModel();
+			if (editor && editorStates[filePath]) {
+				editorStates[filePath].viewState = editor.saveViewState();
+				editorStates[filePath].model = editor.getModel();
 			}
 
 			if (this.tabsMap[filePath]) {
@@ -91,32 +92,39 @@ export default {
 					label: label,
 					key: filePath,
 					closable: true,
+					isDirty: false,
 					// favico: `fa fa-file-code-o`,
 					// class: `fa fa-file-code-o`, //`monaco-icon-label ${fileIcon}`,
 				});
 				this.currentTab = filePath;
 			}
+
 			this.initMonacoEditor(filePath);
 		},
 		initMonacoEditor(filePath) {
+
 			if (!editor) {
 				editor = monaco.editor.create(this.$refs.monaco, this.settings);
 			}
 
-			if (editorStates[filePath]) {
-				editor.restoreViewState(editorStates[filePath].viewState);
+			console.log('set state to ', filePath, editorStates)
+
+			if (editorStates[filePath]?.model) {
+				console.log('byt editorstate');
 				editor.setModel(editorStates[filePath].model);
+				editor.restoreViewState(editorStates[filePath].viewState);
 			} else {
 				axios.get(this.actions.open, {
 					params: {
-						path: filePath,
+						filename: filePath,
 					},
 				}).then(res => {
-					const model = monaco.editor.createModel(res.data, this.getLanguage(filePath));
+					const model = monaco.editor.createModel(res.data.data, this.getLanguage(filePath));
 					editor.setModel(model);
+
 					editorStates[filePath] = {
-						model: model,
-						viewState: null
+						model: editor.getModel(),
+						viewState: editor.saveViewState()
 					}
 				}).catch(err => {
 					console.log(err);

@@ -1,14 +1,18 @@
 <template>
 	<div class="file-explorer">
-		<div @click="$emit('openFile', file)" class="file" v-for="file in files">{{ file }}</div>
+		<ExplorerItem @openFile="v => $emit('openFile',v)" v-for="item in files" :item="item"></ExplorerItem>
 	</div>
 </template>
 
 <script>
+import ExplorerItem from './ExplorerItem.vue';
 import axios from 'axios';
 
 export default {
 	name: "FileExplorer",
+	components: {
+		ExplorerItem,
+	},
 	props: ['actions'],
 	data() {
 		return {
@@ -18,8 +22,8 @@ export default {
 	created() {
 		axios.get(this.actions.files)
 			.then((res) => {
-				this.files = res.data;
-				console.log(this.files);
+				this.files = res.data.data;
+				// console.log(this.files);
 			}).catch((err) => {
 				console.log(err);
 			});
