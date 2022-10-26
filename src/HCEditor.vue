@@ -22,7 +22,8 @@ import FileExplorer from './components/FileExplorer.vue'
 import Toolbar from './components/Toolbar.vue';
 import initMonaco from './helper/monacoLoader';
 
-
+import { useEditorStore } from './store';
+import { mapWritableState } from 'pinia';
 
 export default {
 	name: 'UpCodeEditor',
@@ -36,6 +37,7 @@ export default {
 	data() {
 		return {
 			editorIsLoaded: false,
+
 		}
 	},
 	props: {
@@ -66,29 +68,22 @@ export default {
 		delete: {
 			type: String,
 			default: "",
-		},
-		wordWrap: {
-			type: Boolean,
-			default: false,
-		},
-		theme: {
-			type: String,
-			default: "vs-dark",
-		},
-		tabSize: {
-			type: Number,
-			default: 2,
-		},
-		language: {
-			type: String,
-			default: "",
-		},
+		}
 	},
 	async created() {
 		if (!window.monaco) {
 			window.monaco = await initMonaco();
 		}
 		this.editorIsLoaded = true;
+		this.rightClickFiles = this.contextmenu;
+		this.actions = {
+			files: this.files,
+			load: this.load,
+			open: this.open,
+			save: this.save,
+			move: this.move,
+			delete: this.delete,
+		}
 
 		this.$nextTick(() => {
 			if (this.load) {
@@ -98,47 +93,9 @@ export default {
 
 	},
 	computed: {
-		settings() {
-			return {
-				wordWrap: this.wordWrap,
-				theme: this.theme,
-				tabSize: this.tabSize,
-				language: this.language,
-				// default
-				automaticLayout: true,
-				lineNumbersMinChars: 3,
-				stickyTabStops: true,
-				mouseWheelZoom: true,
-				fixedOverflowWidgets: true
-			}
-		},
-		hasMenu() {
-			return this.contextmenu;
-		},
-		actions() {
-			return {
-				files: this.files,
-				open: this.open,
-				load: this.load,
-				save: this.save,
-				move: this.move,
-				delete: this.delete,
-			}
-		}
+		...mapWritableState(useEditorStore, ['settings', 'rightClickFiles', 'actions']),
 	},
 	watch: {
-		theme(val) {
-			this.$refs.editor.settingsUpdate('theme', val);
-		},
-		language(val) {
-			this.$refs.editor.settingsUpdate('language', val);
-		},
-		tabSize(val) {
-			this.$refs.editor.settingsUpdate('tabsize', val);
-		},
-		wordWrap(val) {
-			this.$refs.editor.settingsUpdate('wordwrap', val);
-		},
 		load(val) {
 			console.log('load changed to ' + val);
 			this.$refs.editor.openFile(val);

@@ -1,6 +1,6 @@
 <template>
 	<div class="editor">
-		<vue-tabs-chrome ref="tab" class="theme-dark" v-model="currentTab" :tabs="tabs" insert-to-after />
+		<vue-tabs-chrome ref="tab" class="theme-dark" @remove="removeTab" v-model="currentTab" @click="clickTab" :tabs="tabs" insert-to-after />
 		<div ref="monaco" class="code-editor" />
 	</div>
 </template>
@@ -28,12 +28,15 @@ export default {
 		}
 	},
 	watch: {
-		currentTab(val, o) {
-			console.log(val, o)
-			if (val !== null && val !== this.currentTab) {
-				this.openFile(val);
-				// monacoTree.setSelection(val);
+		currentTab(newFile, oldFile) {
+			// Spara undan nuvarande state om de finns
+			if (editor && editorStates[oldFile]) {
+				editorStates[oldFile].viewState = editor.saveViewState();
+				editorStates[oldFile].model = editor.getModel();
 			}
+
+			// monacoTree.setSelection(val);
+
 		},
 	},
 	computed: {
@@ -44,9 +47,19 @@ export default {
 		},
 	},
 	mounted() {
-		console.log(this.settings)
+
 	},
 	methods: {
+		clickTab(e, tab) {
+			this.openFile(tab.key);
+		},
+		removeTab(tab) {
+			console.log('remove tab', tab);
+			if (this.tabs.length) {
+				this.openFile(this.tabs[0].key);
+			}
+			editorStates[tab.key] = null;
+		},
 		getLanguage(filePath) {
 			const langMap = {
 				js: 'javascript',
@@ -77,24 +90,15 @@ export default {
 		},
 		openFile(filePath) {
 
-			// Spara undan nuvarande state om de finns
-			if (editor && editorStates[filePath]) {
-				editorStates[filePath].viewState = editor.saveViewState();
-				editorStates[filePath].model = editor.getModel();
-			}
-
 			if (this.tabsMap[filePath]) {
 				this.currentTab = filePath;
 			} else {
-				const label = filePath.split('/').pop();
-
 				this.$refs.tab.addTab({
-					label: label,
+					label: filePath.split('/').pop(),
 					key: filePath,
 					closable: true,
 					isDirty: false,
 					// favico: `fa fa-file-code-o`,
-					// class: `fa fa-file-code-o`, //`monaco-icon-label ${fileIcon}`,
 				});
 				this.currentTab = filePath;
 			}
@@ -102,37 +106,31 @@ export default {
 			this.initMonacoEditor(filePath);
 		},
 		initMonacoEditor(filePath) {
-
 			if (!editor) {
 				editor = monaco.editor.create(this.$refs.monaco, this.settings);
 			}
 
-			console.log('set state to ', filePath, editorStates)
-
 			if (editorStates[filePath]?.model) {
-				console.log('byt editorstate');
 				editor.setModel(editorStates[filePath].model);
 				editor.restoreViewState(editorStates[filePath].viewState);
 			} else {
-				axios.get(this.actions.open, {
-					params: {
-						filename: filePath,
-					},
-				}).then(res => {
-					const model = monaco.editor.createModel(res.data.data, this.getLanguage(filePath));
-					editor.setModel(model);
+				axios.get(this.actions.open, { params: { filename: filePath } })
+					.then(res => {
+						const model = monaco.editor.createModel(res.data.data, this.getLanguage(filePath), monaco.Uri.file(filePath));
+						editor.setModel(model);
 
-					editorStates[filePath] = {
-						model: editor.getModel(),
-						viewState: editor.saveViewState()
-					}
-				}).catch(err => {
-					console.log(err);
-				});
+						editorStates[filePath] = {
+							model: editor.getModel(),
+							viewState: editor.saveViewState()
+						}
+					}).catch(err => {
+						console.error(err);
+					});
 			}
-		},
+		}
 	}
 }
+
 </script>
 
 <style lang="scss">

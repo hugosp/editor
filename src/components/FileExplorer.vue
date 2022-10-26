@@ -35,6 +35,7 @@ export default {
 
 <style lang="scss">
 .file-explorer {
+	overflow-y: auto;
 	background-color: var(--bg-dark);
 	color: var(--fg-tab);
 	padding: var(--padd);

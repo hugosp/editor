@@ -35,5 +35,6 @@ export default {
 <style>
 .explorer-item {
 	padding-left: 20px;
+	overflow-x: hidden;
 }
 </style>
