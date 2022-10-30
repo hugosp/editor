@@ -1,6 +1,6 @@
 <template>
 	<div class="editor">
-		<vue-tabs-chrome ref="tab" class="theme-dark" @remove="removeTab" v-model="currentTab" @click="clickTab" :tabs="tabs" insert-to-after />
+		<vue-tabs-chrome ref="tab" class="theme-dark" @remove="removeTab" v-model="currentTab" @click="clickTab" :tabs="tabs" insert-to-after v-show="tabs.length" />
 		<div ref="monaco" class="code-editor" />
 	</div>
 </template>
@@ -9,23 +9,16 @@
 import axios from 'axios';
 import VueTabsChrome from 'vue3-tabs-chrome';
 import 'vue3-tabs-chrome/dist/vue3-tabs-chrome.css';
+import { useEditorStore } from '../store';
+import { mapWritableState } from 'pinia';
+
 
 let editor = null;
 let editorStates = {};
 
-
-
 export default {
 	components: {
 		VueTabsChrome,
-	},
-	props: ['settings', 'actions'],
-	data() {
-		return {
-			tabs: [],
-			currentTab: null,
-			tabHeight: 0,
-		}
 	},
 	watch: {
 		currentTab(newFile, oldFile) {
@@ -34,12 +27,20 @@ export default {
 				editorStates[oldFile].viewState = editor.saveViewState();
 				editorStates[oldFile].model = editor.getModel();
 			}
-
-			// monacoTree.setSelection(val);
-
 		},
+		settings(changedKey) {
+			console.log('changedKey', changedKey);
+			if (changedKey === 'theme') {
+				monaco.editor.setTheme(this.settings.theme);
+				this.getThemeColors();
+			} else {
+				editor.updateOptions({ changedKey: this.settings[changedKey] });
+			}
+
+		}
 	},
 	computed: {
+		...mapWritableState(useEditorStore, ['actions', 'settings', 'currentTab', 'tabs', 'dirtyTabs']),
 		tabsMap() {
 			const map = {};
 			this.tabs.forEach(item => map[item.key] = item);
@@ -50,13 +51,19 @@ export default {
 
 	},
 	methods: {
+		getThemeColors() {
+			debugger;
+			const theme = editor._themeService._theme;
+			console.log('theme', theme)
+		},
 		clickTab(e, tab) {
 			this.openFile(tab.key);
 		},
 		removeTab(tab) {
-			console.log('remove tab', tab);
 			if (this.tabs.length) {
 				this.openFile(this.tabs[0].key);
+			} else {
+				editor.dispose();
 			}
 			editorStates[tab.key] = null;
 		},
@@ -97,8 +104,7 @@ export default {
 					label: filePath.split('/').pop(),
 					key: filePath,
 					closable: true,
-					isDirty: false,
-					// favico: `fa fa-file-code-o`,
+					favico: () => this.dirtyTabs[filePath] ? '🔴' : '🟢',
 				});
 				this.currentTab = filePath;
 			}
@@ -108,6 +114,11 @@ export default {
 		initMonacoEditor(filePath) {
 			if (!editor) {
 				editor = monaco.editor.create(this.$refs.monaco, this.settings);
+
+				editor.onDidChangeModelContent((e) => {
+					this.dirtyTabs[this.currentTab] = true;
+					console.log(this.tabs, this.dirtyTabs);
+				})
 			}
 
 			if (editorStates[filePath]?.model) {
@@ -141,6 +152,16 @@ export default {
 
 @import url('https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.21.2/min/vs/editor/editor.main.css');
 
+.tab {
+	&-dirty {
+		&::after {
+			content: '●';
+			color: #ff0000;
+			font-size: 0.8em;
+			margin-left: 0.5em;
+		}
+	}
+}
 
 .editor {
 	height: 100%;

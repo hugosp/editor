@@ -1,12 +1,12 @@
 <template>
 	<div class="editor-wrapper">
 		<Toolbar></Toolbar>
-		<Splitpanes>
-			<Pane size="20">
-				<FileExplorer :actions="actions" @openFile="loadFile"></FileExplorer>
+		<Splitpanes @resized="paneResized">
+			<Pane :size="panes[0]">
+				<Explorer @openFile="loadFile" v-if="this.actions.files"></Explorer>
 			</Pane>
-			<Pane size="80">
-				<Editor ref="editor" :settings="settings" :actions="actions" v-if="editorIsLoaded"></Editor>
+			<Pane :size="panes[1]">
+				<Editor ref="editor" :settings="settings" v-if="editorIsLoaded"></Editor>
 				<button @click="debug" style="position:fixed;top:0;right:0;">Debug</button>
 			</Pane>
 		</Splitpanes>
@@ -18,7 +18,7 @@ import { Splitpanes, Pane } from 'splitpanes'
 import 'splitpanes/dist/splitpanes.css';
 
 import Editor from './components/Editor.vue'
-import FileExplorer from './components/FileExplorer.vue'
+import Explorer from './components/Explorer.vue'
 import Toolbar from './components/Toolbar.vue';
 import initMonaco from './helper/monacoLoader';
 
@@ -32,7 +32,7 @@ export default {
 		Pane,
 		Editor,
 		Toolbar,
-		FileExplorer
+		Explorer
 	},
 	data() {
 		return {
@@ -93,7 +93,7 @@ export default {
 
 	},
 	computed: {
-		...mapWritableState(useEditorStore, ['settings', 'rightClickFiles', 'actions']),
+		...mapWritableState(useEditorStore, ['settings', 'rightClickFiles', 'actions', 'panes']),
 	},
 	watch: {
 		load(val) {
@@ -102,6 +102,9 @@ export default {
 		},
 	},
 	methods: {
+		paneResized(panes) {
+			this.panes = panes.map(pane => pane.size);
+		},
 		loadFile(file) {
 			this.$refs.editor.openFile(file);
 		},
@@ -116,6 +119,7 @@ export default {
 @import url('https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css');
 
 #editor {
+	background: var(--bg-dark);
 	height: 90%;
 	width: 90%;
 	border: 2px solid var(--bg-dark);

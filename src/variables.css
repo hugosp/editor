@@ -6,6 +6,10 @@
 	--bg-editor: #1e1e1e;
 	--padd: 5px;
 
+	--bg-file-active: #666;
+	--fg-file-active: white;
+
+	--bg-explorer-section: #292a2d;
 	--font: 'Calibri', 'Helvetica Neue', Arial, sans-serif;
 
 	display: block;

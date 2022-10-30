@@ -8,6 +8,9 @@
 
 <script>
 
+import { useEditorStore } from '../store';
+import { mapWritableState } from 'pinia';
+
 export default {
 	name: "Toolbar",
 	data() {
@@ -35,6 +38,7 @@ export default {
 					icon: "fa fa-adjust",
 					tooltip: "Mörkt/Ljust tema",
 					action: () => {
+						this.settings.theme = this.settings.theme === "vs-dark" ? "vs" : "vs-dark";
 						console.log("theme");
 					},
 				},
@@ -49,6 +53,10 @@ export default {
 			],
 		};
 	},
+	computed: {
+		...mapWritableState(useEditorStore, ['settings']),
+	},
+
 };
 </script>
 

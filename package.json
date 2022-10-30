@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@vueuse/core": "^9.4.0",
     "axios": "^1.1.3",
     "nice-monaco-tree": "^1.0.7",
     "pinia": "^2.0.23",
