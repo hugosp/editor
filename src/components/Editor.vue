@@ -31,6 +31,8 @@ export default {
 		settings: {
 			handler(newVal, oldVal) {
 				monaco.editor.setTheme(this.settings.theme);
+				if (!editor) return;
+
 				editor.updateOptions({ wordWrap: this.settings.wordWrap });
 				editor.updateOptions({ tabSize: this.settings.tabSize });
 				editor.updateOptions({ fontSize: this.settings.fontSize });
@@ -49,19 +51,19 @@ export default {
 		},
 	},
 	mounted() {
-
+		// Kolla så man inte har osparade ändringar
+		window.addEventListener("beforeunload", e => this.checkDirtyTabs(e));
 	},
 	methods: {
+		checkDirtyTabs(e) {
+			if (Object.values(this.dirtyTabs).length) {
+				var confirmationMessage = 'Du har osparade ändringar. är du säker på att du vill lämna sidan?';
+				(e || window.event).returnValue = confirmationMessage; //Gecko + IE
+				return confirmationMessage; //Gecko + Webkit, Safari, Chrome etc.
+			}
+		},
 		getThemeColors() {
 			if (!editor) return;
-			/*
-				{"editor.background" => r}
-				{"editor.foreground" => r}
-				{"editor.inactiveSelectionBackground" => r}
-				{"editorIndentGuide.background" => r}
-				{"editorIndentGuide.activeBackground" => r}
-				{"editor.selectionHighlightBackground" => r}
-			*/
 			const theme = editor._themeService._theme;
 			const bg = theme.colors.get('editor.background').rgba
 			const fg = theme.colors.get('editor.foreground').rgba
@@ -86,12 +88,23 @@ export default {
 			this.openFile(tab.key);
 		},
 		removeTab(tab) {
+			if (this.dirtyTabs[tab.key] && !confirm('Är du säker på att du vill stänga filen utan att spara?')) return;
+
+			this.closeFile(tab.key);
+		},
+		closeFile(key) {
+
+			this.dirtyTabs = Object.keys(this.dirtyTabs).filter(item => item !== key).reduce((obj, key) => {
+				obj[key] = this.dirtyTabs[key];
+				return obj;
+			}, {});
+			editorStates[tab.key] = null;
+
 			if (this.tabs.length) {
 				this.openFile(this.tabs[0].key);
 			} else {
 				editor.dispose();
 			}
-			editorStates[tab.key] = null;
 		},
 		getLanguage(filePath) {
 			const langMap = {

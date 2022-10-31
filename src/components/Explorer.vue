@@ -50,7 +50,7 @@ export default {
 <style lang="scss" scoped>
 .explorer {
 	overflow-y: auto;
-	background-color: var(--bg-editor);
+	background-color: var(--bg-editor-inactive);
 	color: var(--fg-editor);
 	padding: var(--padd);
 	height: 100%;

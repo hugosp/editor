@@ -1,42 +1,60 @@
 <template>
 	<div class="toolbar">
 		<button class="toolbar-btn" v-for="button in buttons" @click="button.action">
-			<span :class="button.icon" :title="button.tooltip"></span>
+			<Icon style="font-size:18px;" :icon="button.icon" :title="button.tooltip" />
 		</button>
-
 	</div>
 </template>
 
 <script>
 
+import { Icon } from '@iconify/vue';
 import { useEditorStore } from '../store';
 import { mapWritableState } from 'pinia';
 
 export default {
 	name: "Toolbar",
+	components: {
+		Icon,
+	},
 	data() {
 		return {
 			buttons: [
 				{
 					name: "new",
-					icon: "fa fa-file-o",
+					icon: "codicon:new-file",
 					tooltip: "Ny fil...",
 					action: () => {
 						console.log("new");
 					},
 				},
 				{
+					name: "new folder",
+					icon: "codicon:new-folder",
+					tooltip: "Ny fil...",
+					action: () => {
+						console.log("new folder...");
+					},
+				},
+				{
 					name: "save",
-					icon: "fa fa-floppy-o",
+					icon: "codicon:save",
 					tooltip: "Spara",
 					action: () => {
 						console.log("save");
 					},
 				},
-
+				{
+					name: "delete",
+					icon: "codicon:trash",
+					tooltip: "Radera",
+					action: () => {
+						console.log("delete");
+					},
+				},
 				{
 					name: "theme",
-					icon: "fa fa-adjust",
+					icon: "fluent:dark-theme-24-regular",
 					tooltip: "Mörkt/Ljust tema",
 					action: () => {
 						this.settings.theme = this.settings.theme === "vs-dark" ? "vs" : "vs-dark";
@@ -45,7 +63,7 @@ export default {
 				},
 				{
 					name: "fullscreen",
-					icon: "fa fa-arrows-alt",
+					icon: "gridicons:fullscreen",
 					tooltip: "Fullskärmsläge",
 					action: () => {
 						this.$root.$el.parentElement.classList.toggle("fullscreen");
@@ -63,7 +81,7 @@ export default {
 
 <style lang="scss">
 .toolbar {
-	background: var(--bg-editor);
+	background: var(--bg-editor-inactive);
 	display: grid;
 	grid-template-columns: repeat(auto-fit, 40px);
 	color: #333;
