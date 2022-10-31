@@ -1,6 +1,6 @@
 <template>
 	<div class="editor">
-		<vue-tabs-chrome ref="tab" class="theme-dark" @remove="removeTab" v-model="currentTab" @click="clickTab" :tabs="tabs" insert-to-after v-show="tabs.length" />
+		<vue-tabs-chrome ref="tab" :class="editorStore.settings.theme.includes('dark') ? 'theme-dark' : ''" @remove="removeTab" v-model="currentTab" @click="clickTab" :tabs="tabs" insert-to-after v-show="tabs.length" />
 		<div ref="monaco" class="code-editor" />
 	</div>
 </template>
@@ -10,7 +10,7 @@ import axios from 'axios';
 import VueTabsChrome from 'vue3-tabs-chrome';
 import 'vue3-tabs-chrome/dist/vue3-tabs-chrome.css';
 import { useEditorStore } from '../store';
-import { mapWritableState } from 'pinia';
+import { mapStores, mapWritableState } from 'pinia';
 
 
 let editor = null;
@@ -28,19 +28,20 @@ export default {
 				editorStates[oldFile].model = editor.getModel();
 			}
 		},
-		settings(changedKey) {
-			console.log('changedKey', changedKey);
-			if (changedKey === 'theme') {
+		settings: {
+			handler(newVal, oldVal) {
 				monaco.editor.setTheme(this.settings.theme);
-				this.getThemeColors();
-			} else {
-				editor.updateOptions({ changedKey: this.settings[changedKey] });
-			}
+				editor.updateOptions({ wordWrap: this.settings.wordWrap });
+				editor.updateOptions({ tabSize: this.settings.tabSize });
+				editor.updateOptions({ fontSize: this.settings.fontSize });
 
+				this.getThemeColors();
+			}, deep: true
 		}
 	},
 	computed: {
-		...mapWritableState(useEditorStore, ['actions', 'settings', 'currentTab', 'tabs', 'dirtyTabs']),
+		...mapWritableState(useEditorStore, ['settings', 'currentTab', 'tabs', 'dirtyTabs',]),
+		...mapStores(useEditorStore),
 		tabsMap() {
 			const map = {};
 			this.tabs.forEach(item => map[item.key] = item);
@@ -52,9 +53,34 @@ export default {
 	},
 	methods: {
 		getThemeColors() {
-			debugger;
+			if (!editor) return;
+			/*
+				{"editor.background" => r}
+				{"editor.foreground" => r}
+				{"editor.inactiveSelectionBackground" => r}
+				{"editorIndentGuide.background" => r}
+				{"editorIndentGuide.activeBackground" => r}
+				{"editor.selectionHighlightBackground" => r}
+			*/
 			const theme = editor._themeService._theme;
-			console.log('theme', theme)
+			const bg = theme.colors.get('editor.background').rgba
+			const fg = theme.colors.get('editor.foreground').rgba
+
+			const bgi = theme.colors.get('editor.inactiveSelectionBackground').rgba
+			const bgin = theme.colors.get('editorIndentGuide.background').rgba
+			const bgina = theme.colors.get('editorIndentGuide.activeBackground').rgba
+			const bgsh = theme.colors.get('editor.selectionHighlightBackground').rgba
+
+			const root = document.querySelector(':root');
+
+			root.style.setProperty('--bg-editor', `rgba(${bg.r}, ${bg.g}, ${bg.b}, ${bg.a})`);
+			root.style.setProperty('--fg-editor', `rgba(${fg.r}, ${fg.g}, ${fg.b}, ${fg.a})`);
+			root.style.setProperty('--bg-editor-inactive', `rgba(${bgi.r}, ${bgi.g}, ${bgi.b}, ${bgi.a})`);
+			root.style.setProperty('--bg-editor-indent', `rgba(${bgin.r}, ${bgin.g}, ${bgin.b}, ${bgin.a})`);
+			root.style.setProperty('--bg-editor-indent-active', `rgba(${bgina.r}, ${bgina.g}, ${bgina.b}, ${bgina.a})`);
+			root.style.setProperty('--bg-editor-selection-highlight', `rgba(${bgsh.r}, ${bgsh.g}, ${bgsh.b}, ${bgsh.a})`);
+
+			console.log('Loaded theme colors', theme);
 		},
 		clickTab(e, tab) {
 			this.openFile(tab.key);
@@ -113,21 +139,22 @@ export default {
 		},
 		initMonacoEditor(filePath) {
 			if (!editor) {
-				editor = monaco.editor.create(this.$refs.monaco, this.settings);
+				editor = monaco.editor.create(this.$refs.monaco, this.editorStore.settings);
 
 				editor.onDidChangeModelContent((e) => {
 					this.dirtyTabs[this.currentTab] = true;
 					console.log(this.tabs, this.dirtyTabs);
 				})
+				this.getThemeColors();
 			}
 
 			if (editorStates[filePath]?.model) {
 				editor.setModel(editorStates[filePath].model);
 				editor.restoreViewState(editorStates[filePath].viewState);
 			} else {
-				axios.get(this.actions.open, { params: { filename: filePath } })
+				this.editorStore.openFile(filePath)
 					.then(res => {
-						const model = monaco.editor.createModel(res.data.data, this.getLanguage(filePath), monaco.Uri.file(filePath));
+						const model = monaco.editor.createModel(res, this.getLanguage(filePath), monaco.Uri.file(filePath));
 						editor.setModel(model);
 
 						editorStates[filePath] = {
@@ -171,7 +198,7 @@ export default {
 }
 
 .code-editor {
-	background: var(--bg-dark);
+	background: var(--bg-editor);
 	height: 100%;
 }
 </style>

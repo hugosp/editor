@@ -3,6 +3,7 @@
 		<button class="toolbar-btn" v-for="button in buttons" @click="button.action">
 			<span :class="button.icon" :title="button.tooltip"></span>
 		</button>
+
 	</div>
 </template>
 
@@ -47,7 +48,7 @@ export default {
 					icon: "fa fa-arrows-alt",
 					tooltip: "Fullskärmsläge",
 					action: () => {
-						console.log("fullscreen");
+						this.$root.$el.parentElement.classList.toggle("fullscreen");
 					},
 				},
 			],
@@ -62,7 +63,7 @@ export default {
 
 <style lang="scss">
 .toolbar {
-	background: var(--bg-dark);
+	background: var(--bg-editor);
 	display: grid;
 	grid-template-columns: repeat(auto-fit, 40px);
 	color: #333;

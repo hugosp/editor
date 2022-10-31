@@ -1,15 +1,17 @@
 :root {
-	--bg-dark: #252526;
-	--bg-tab: #2d2d2d;
-	--bg-tab-active: #1e1e1e;
-	--fg-tab: #fafafa;
-	--bg-editor: #1e1e1e;
-	--padd: 5px;
+	--fg-editor: #fafafa;
+	--bg-editor: #252526;
 
 	--bg-file-active: #666;
 	--fg-file-active: white;
 
-	--bg-explorer-section: #292a2d;
+	--bg-editor-inactive: #3a3d41;
+	--bg-editor-indent: #404040;
+	--bg-editor-indent-active: #707070;
+	--bg-editor-selection-highlight: #add6ff26;
+
+
+	--padd: 5px;
 	--font: 'Calibri', 'Helvetica Neue', Arial, sans-serif;
 
 	display: block;

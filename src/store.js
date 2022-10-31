@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { useStorage } from '@vueuse/core'
+import axios from 'axios'
 
 export const useEditorStore = defineStore('editor', {
 	state: () => ({
@@ -23,7 +24,14 @@ export const useEditorStore = defineStore('editor', {
 		panes: useStorage('editor-panes', [20, 80]),
 	}),
 	actions: {
-
+		async getFiles() {
+			const res = await axios.get(this.actions.files);
+			return res.data.data;
+		},
+		async openFile(path) {
+			const res = await axios.get(this.actions.open, { params: { filename: path } })
+			return res.data.data;
+		}
 	},
 	getters: {
 

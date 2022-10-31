@@ -70,7 +70,7 @@ export default {
 		padding: 1px 3px;
 
 		&.active {
-			background-color: var(--bg-file-active);
+			background-color: var(--bg-editor-indent-active);
 			color: var(--fg-file-active);
 		}
 	}

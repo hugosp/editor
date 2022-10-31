@@ -119,15 +119,23 @@ export default {
 @import url('https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css');
 
 #editor {
-	background: var(--bg-dark);
+	background: var(--bg-editor);
 	height: 90%;
 	width: 90%;
-	border: 2px solid var(--bg-dark);
+	border: 2px solid var(--bg-editor);
 	font-family: var(--font);
 
 	margin: 0;
 	padding: 0;
 	box-sizing: border-box;
+
+	&.fullscreen {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100% !important;
+		height: 100vh !important;
+	}
 
 	.editor-wrapper {
 		height: 100%;

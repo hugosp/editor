@@ -1,5 +1,6 @@
 <template>
 	<div class="explorer">
+
 		<section>
 			<div class="title">Files</div>
 			<FileExplorerItem @openFile="v => $emit('openFile', v)" v-for="item in files" :item="item"></FileExplorerItem>
@@ -19,10 +20,8 @@
 
 <script>
 import FileExplorerItem from './FileExplorerItem.vue';
-import axios from 'axios';
-
 import { useEditorStore } from '../store';
-import { mapWritableState, mapState } from 'pinia';
+import { mapStores } from 'pinia';
 
 
 export default {
@@ -36,16 +35,12 @@ export default {
 		};
 	},
 	computed: {
-		...mapWritableState(useEditorStore, ['actions', 'currentTab']),
+		...mapStores(useEditorStore),
 	},
 	mounted() {
-		axios.get(this.actions.files)
-			.then((res) => {
-				this.files = res.data.data;
-				// console.log(this.files);
-			}).catch((err) => {
-				console.log(err);
-			});
+		this.editorStore.getFiles().then(res => {
+			this.files = res;
+		});
 	},
 }
 
@@ -55,8 +50,8 @@ export default {
 <style lang="scss" scoped>
 .explorer {
 	overflow-y: auto;
-	background-color: var(--bg-dark);
-	color: var(--fg-tab);
+	background-color: var(--bg-editor);
+	color: var(--fg-editor);
 	padding: var(--padd);
 	height: 100%;
 
@@ -65,8 +60,8 @@ export default {
 		margin-bottom: 10px;
 
 		.title {
-			background: var(--bg-explorer-section);
-			border: 1px solid var(--fg-tab);
+			background: var(--bg-editor-indent);
+			border: 1px solid var(--bg-editor-indent-active);
 			padding: 2px 5px;
 			font-size: 75%;
 		}
