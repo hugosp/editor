@@ -1,8 +1,11 @@
 <template>
 	<div class="toolbar">
-		<button class="toolbar-btn" v-for="button in buttons" @click="button.action">
-			<Icon style="font-size:18px;" :icon="button.icon" :title="button.tooltip" />
-		</button>
+		<div class="item" v-for="button in buttons">
+			<button class="toolbar-btn" @click="button.action" :title="button.tooltip" v-if="button.action">
+				<Icon style="font-size:22px;margin:auto;" :icon="button.icon" :title="button.tooltip" />
+			</button>
+			<div v-else class="spacer"></div>
+		</div>
 	</div>
 </template>
 
@@ -10,7 +13,7 @@
 
 import { Icon } from '@iconify/vue';
 import { useEditorStore } from '../store';
-import { mapWritableState } from 'pinia';
+import { mapStores, mapWritableState } from 'pinia';
 
 export default {
 	name: "Toolbar",
@@ -25,45 +28,74 @@ export default {
 					icon: "codicon:new-file",
 					tooltip: "Ny fil...",
 					action: () => {
-						console.log("new");
+						this.editorStore.newFile();
 					},
 				},
 				{
 					name: "new folder",
-					icon: "codicon:new-folder",
+					icon: "mdi:folder-plus",
 					tooltip: "Ny fil...",
 					action: () => {
-						console.log("new folder...");
+						this.editorStore.newFolder();
 					},
 				},
 				{
 					name: "save",
-					icon: "codicon:save",
+					icon: "mdi:content-save",
 					tooltip: "Spara",
 					action: () => {
-						console.log("save");
+						this.editorStore.saveFile();
 					},
 				},
 				{
 					name: "delete",
-					icon: "codicon:trash",
+					icon: "mdi:delete",
 					tooltip: "Radera",
 					action: () => {
-						console.log("delete");
+						this.editorStore.deleteFile();
 					},
+				},
+				{
+
 				},
 				{
 					name: "theme",
-					icon: "fluent:dark-theme-24-regular",
+					icon: "mdi:theme-light-dark",
 					tooltip: "Mörkt/Ljust tema",
 					action: () => {
 						this.settings.theme = this.settings.theme === "vs-dark" ? "vs" : "vs-dark";
-						console.log("theme");
 					},
 				},
 				{
+					name: "indent",
+					icon: "mdi:format-indent-decrease",
+					tooltip: "Minska Indentering",
+					action: () => {
+						this.settings.tabSize -= 2;
+					},
+				},
+				{
+					name: "indent",
+					icon: "mdi:format-indent-increase",
+					tooltip: "Öka Indentering",
+					action: () => {
+						this.settings.tabSize += 2;
+					},
+				},
+				{
+					name: "wordwrap",
+					icon: "mdi:file-word-box",
+					tooltip: "Radbrytning",
+					action: () => {
+						this.settings.wordWrap = !this.settings.wordWrap;
+					},
+				},
+				{
+
+				},
+				{
 					name: "fullscreen",
-					icon: "gridicons:fullscreen",
+					icon: "mdi:fullscreen",
 					tooltip: "Fullskärmsläge",
 					action: () => {
 						this.$root.$el.parentElement.classList.toggle("fullscreen");
@@ -74,6 +106,7 @@ export default {
 	},
 	computed: {
 		...mapWritableState(useEditorStore, ['settings']),
+		...mapStores(['editorStore']),
 	},
 
 };
@@ -83,9 +116,13 @@ export default {
 .toolbar {
 	background: var(--bg-editor-inactive);
 	display: grid;
-	grid-template-columns: repeat(auto-fit, 40px);
+	grid-template-columns: repeat(auto-fit, 18px);
 	color: #333;
 	gap: var(--padd);
 	padding: var(--padd);
+
+	.item {
+		grid-column: span 2;
+	}
 }
 </style>

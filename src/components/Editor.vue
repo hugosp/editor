@@ -1,6 +1,6 @@
 <template>
 	<div class="editor">
-		<vue-tabs-chrome ref="tab" :class="editorStore.settings.theme.includes('dark') ? 'theme-dark' : ''" @remove="removeTab" v-model="currentTab" @click="clickTab" :tabs="tabs" insert-to-after v-show="tabs.length" />
+		<vue-tabs-chrome ref="tab" :class="editorStore.settings.theme.includes('dark') ? 'theme-dark' : ''" :on-close="removeTab" v-model="currentTab" @click="clickTab" :tabs="tabs" insert-to-after v-show="tabs.length" />
 		<div ref="monaco" class="code-editor" />
 	</div>
 </template>
@@ -81,30 +81,33 @@ export default {
 			root.style.setProperty('--bg-editor-indent', `rgba(${bgin.r}, ${bgin.g}, ${bgin.b}, ${bgin.a})`);
 			root.style.setProperty('--bg-editor-indent-active', `rgba(${bgina.r}, ${bgina.g}, ${bgina.b}, ${bgina.a})`);
 			root.style.setProperty('--bg-editor-selection-highlight', `rgba(${bgsh.r}, ${bgsh.g}, ${bgsh.b}, ${bgsh.a})`);
-
-			console.log('Loaded theme colors', theme);
 		},
 		clickTab(e, tab) {
 			this.openFile(tab.key);
 		},
 		removeTab(tab) {
-			if (this.dirtyTabs[tab.key] && !confirm('Är du säker på att du vill stänga filen utan att spara?')) return;
-
+			if (this.dirtyTabs[tab.key] && !confirm('Är du säker på att du vill stänga filen utan att spara?')) {
+				return false;
+			}
 			this.closeFile(tab.key);
 		},
 		closeFile(key) {
-
 			this.dirtyTabs = Object.keys(this.dirtyTabs).filter(item => item !== key).reduce((obj, key) => {
 				obj[key] = this.dirtyTabs[key];
 				return obj;
 			}, {});
-			editorStates[tab.key] = null;
 
-			if (this.tabs.length) {
-				this.openFile(this.tabs[0].key);
-			} else {
-				editor.dispose();
-			}
+			editorStates[key].model.dispose();
+			editorStates[key] = null;
+
+			// Byt till första tab om det finns en
+			this.$nextTick(() => {
+				this.tabs = this.tabs.filter(item => item.key !== key);
+				if (this.tabs.length) {
+					this.openFile(this.tabs[0].key);
+				}
+			});
+
 		},
 		getLanguage(filePath) {
 			const langMap = {
@@ -156,7 +159,6 @@ export default {
 
 				editor.onDidChangeModelContent((e) => {
 					this.dirtyTabs[this.currentTab] = true;
-					console.log(this.tabs, this.dirtyTabs);
 				})
 				this.getThemeColors();
 			}
