@@ -13,7 +13,6 @@
 
 		<section class="debug">
 			<div class="title">Debug</div>
-
 		</section>
 	</div>
 </template>
@@ -58,12 +57,14 @@ export default {
 
 	section {
 		margin-bottom: 10px;
+		overflow-x: hidden;
 
 		.title {
 			background: var(--bg-editor-indent);
 			border: 1px solid var(--bg-editor-indent-active);
 			padding: 2px 5px;
 			font-size: 75%;
+			margin-bottom: 5px;
 		}
 	}
 }

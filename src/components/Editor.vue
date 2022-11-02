@@ -55,6 +55,14 @@ export default {
 		window.addEventListener("beforeunload", e => this.checkDirtyTabs(e));
 	},
 	methods: {
+		onResize() {
+			if (editor) {
+				const w = document.getElementById("editor").clientWidth;
+				const h = document.getElementById("editor").clientHeight;
+				console.log("resize", w, h);
+				editor.layout({ height: h, width: w });
+			}
+		},
 		checkDirtyTabs(e) {
 			if (Object.values(this.dirtyTabs).length) {
 				var confirmationMessage = 'Du har osparade ändringar. är du säker på att du vill lämna sidan?';

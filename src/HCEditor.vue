@@ -1,12 +1,12 @@
 <template>
 	<div class="editor-wrapper">
 		<Toolbar></Toolbar>
-		<Splitpanes @resized="paneResized">
-			<Pane :size="panes[0]">
+		<Splitpanes @resized="paneResized" theme="default-theme">
+			<Pane :size="100 - paneSize">
 				<Explorer @openFile="loadFile" v-if="this.actions.files"></Explorer>
 			</Pane>
-			<Pane :size="panes[1]">
-				<Editor ref="editor" :settings="settings" v-if="editorIsLoaded"></Editor>
+			<Pane :size="paneSize">
+				<Editor ref="editor" v-if="editorIsLoaded"></Editor>
 				<button @click="debug" style="position:fixed;top:0;right:0;">Debug</button>
 			</Pane>
 		</Splitpanes>
@@ -93,7 +93,7 @@ export default {
 
 	},
 	computed: {
-		...mapWritableState(useEditorStore, ['settings', 'rightClickFiles', 'actions', 'panes']),
+		...mapWritableState(useEditorStore, ['settings', 'rightClickFiles', 'actions', 'paneSize']),
 	},
 	watch: {
 		load(val) {
@@ -103,7 +103,8 @@ export default {
 	},
 	methods: {
 		paneResized(panes) {
-			this.panes = panes.map(pane => pane.size);
+			this.paneSize = panes[1].size;
+			this.$refs.editor.onResize();
 		},
 		loadFile(file) {
 			this.$refs.editor.openFile(file);
@@ -116,8 +117,6 @@ export default {
 </script>
 
 <style lang="scss">
-@import url('https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css');
-
 #editor {
 	background: var(--bg-editor);
 	height: 90%;
