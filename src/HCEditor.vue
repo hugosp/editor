@@ -1,13 +1,22 @@
 <template>
 	<div class="editor-wrapper">
-		<Toolbar></Toolbar>
-		<Splitpanes @resized="paneResized" theme="default-theme">
-			<Pane :size="100 - paneSize">
-				<Explorer @openFile="loadFile" v-if="this.actions.files"></Explorer>
+		<Toolbar @resize="resize"></Toolbar>
+		<Splitpanes
+			@resized="paneResized"
+			theme="default-theme"
+		>
+			<Pane :size="100 - editorStore.paneSize">
+				<Explorer @openFile="loadFile"></Explorer>
 			</Pane>
-			<Pane :size="paneSize">
-				<Editor ref="editor" v-if="editorIsLoaded"></Editor>
-				<button @click="debug" style="position:fixed;top:0;right:0;">Debug</button>
+			<Pane :size="editorStore.paneSize">
+				<Editor
+					ref="editor"
+					v-if="editorIsLoaded"
+				></Editor>
+				<button
+					@click="debug"
+					style="position:fixed;top:0;right:0;"
+				>Debug</button>
 			</Pane>
 		</Splitpanes>
 	</div>
@@ -23,7 +32,7 @@ import Toolbar from './components/Toolbar.vue';
 import initMonaco from './helper/monacoLoader';
 
 import { useEditorStore } from './store';
-import { mapWritableState } from 'pinia';
+import { mapStores, mapWritableState } from 'pinia';
 
 export default {
 	name: 'UpCodeEditor',
@@ -45,47 +54,22 @@ export default {
 			type: Boolean,
 			default: false,
 		},
-		files: {
+		endpoint: {
 			type: String,
 			default: "",
 		},
-		load: {
-			type: String,
-			default: "",
-		},
-		open: {
-			type: String,
-			default: "",
-		},
-		save: {
-			type: String,
-			default: "",
-		},
-		move: {
-			type: String,
-			default: "",
-		},
-		delete: {
-			type: String,
-			default: "",
-		}
 	},
 	async created() {
 		if (!window.monaco) {
 			window.monaco = await initMonaco();
 		}
 		this.editorIsLoaded = true;
-		this.rightClickFiles = this.contextmenu;
-		this.actions = {
-			files: this.files,
-			load: this.load,
-			open: this.open,
-			save: this.save,
-			move: this.move,
-			delete: this.delete,
-		}
+		this.editorStore.rightClickFiles = this.contextmenu;
+		this.editorStore.endpoint = this.endpoint;
 
 		this.$nextTick(() => {
+			this.editorStore.getFiles();
+
 			if (this.load) {
 				this.$refs.editor.openFile(this.load);
 			}
@@ -93,18 +77,15 @@ export default {
 
 	},
 	computed: {
-		...mapWritableState(useEditorStore, ['settings', 'rightClickFiles', 'actions', 'paneSize']),
-	},
-	watch: {
-		load(val) {
-			console.log('load changed to ' + val);
-			this.$refs.editor.openFile(val);
-		},
+		...mapStores(useEditorStore),
 	},
 	methods: {
+		resize() {
+			this.$refs.editor.resizeEditor();
+		},
 		paneResized(panes) {
-			this.paneSize = panes[1].size;
-			this.$refs.editor.onResize();
+			this.editorStore.paneSize = panes[1].size;
+			this.resize();
 		},
 		loadFile(file) {
 			this.$refs.editor.openFile(file);
@@ -119,8 +100,6 @@ export default {
 <style lang="scss">
 #editor {
 	background: var(--bg-editor);
-	height: 90%;
-	width: 90%;
 	border: 2px solid var(--bg-editor);
 	font-family: var(--font);
 

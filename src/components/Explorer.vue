@@ -3,7 +3,11 @@
 
 		<section>
 			<div class="title">Files</div>
-			<FileExplorerItem @openFile="v => $emit('openFile', v)" v-for="item in files" :item="item"></FileExplorerItem>
+			<FileExplorerItem
+				@openFile="v => $emit('openFile', v)"
+				v-for="item in editorStore.files"
+				:item="item"
+			></FileExplorerItem>
 		</section>
 
 		<section class="versions">
@@ -11,7 +15,10 @@
 			Here be file versions...
 		</section>
 
-		<section class="debug">
+		<section
+			class="debug"
+			v-if="this.editorStore.debug"
+		>
 			<div class="title">Debug</div>
 		</section>
 	</div>
@@ -28,18 +35,11 @@ export default {
 	components: {
 		FileExplorerItem,
 	},
-	data() {
-		return {
-			files: [],
-		};
-	},
 	computed: {
 		...mapStores(useEditorStore),
 	},
 	mounted() {
-		this.editorStore.getFiles().then(res => {
-			this.files = res;
-		});
+
 	},
 }
 

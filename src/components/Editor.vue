@@ -1,7 +1,22 @@
 <template>
-	<div class="editor">
-		<vue-tabs-chrome ref="tab" :class="editorStore.settings.theme.includes('dark') ? 'theme-dark' : ''" :on-close="removeTab" v-model="currentTab" @click="clickTab" :tabs="tabs" insert-to-after v-show="tabs.length" />
-		<div ref="monaco" class="code-editor" />
+	<div
+		class="editor"
+		id="monaco-editor"
+	>
+		<vue-tabs-chrome
+			ref="tab"
+			:class="editorStore.settings.theme.includes('dark') ? 'theme-dark' : ''"
+			:on-close="removeTab"
+			v-model="currentTab"
+			@click="clickTab"
+			:tabs="tabs"
+			insert-to-after
+			v-show="tabs.length"
+		/>
+		<div
+			ref="monaco"
+			class="code-editor"
+		/>
 	</div>
 </template>
 
@@ -19,6 +34,11 @@ let editorStates = {};
 export default {
 	components: {
 		VueTabsChrome,
+	},
+	data() {
+		return {
+			resizeTimer: null
+		}
 	},
 	watch: {
 		currentTab(newFile, oldFile) {
@@ -53,15 +73,24 @@ export default {
 	mounted() {
 		// Kolla så man inte har osparade ändringar
 		window.addEventListener("beforeunload", e => this.checkDirtyTabs(e));
+
+		// const resizeObserver = new ResizeObserver(() => {
+		// 	console.log('resizeObserver')
+		// 	this.resizeEditor();
+		// });
+		// resizeObserver.observe(document.getElementById("monaco-editor"));
 	},
 	methods: {
-		onResize() {
-			if (editor) {
-				const w = document.getElementById("editor").clientWidth;
-				const h = document.getElementById("editor").clientHeight;
-				console.log("resize", w, h);
-				editor.layout({ height: h, width: w });
-			}
+		resizeEditor() {
+			clearTimeout(this.resizeTimer);
+			this.resizeTimer = setTimeout(() => {
+				if (editor) {
+					const w = document.getElementById("monaco-editor").clientWidth - 5;
+					const h = document.getElementById("monaco-editor").clientHeight - 45;
+					console.log("resize", w, h);
+					editor.layout({ height: h, width: w });
+				}
+			}, 300);
 		},
 		checkDirtyTabs(e) {
 			if (Object.values(this.dirtyTabs).length) {
@@ -147,6 +176,8 @@ export default {
 		},
 		openFile(filePath) {
 
+			console.log('openFile', filePath);
+
 			if (this.tabsMap[filePath]) {
 				this.currentTab = filePath;
 			} else {
@@ -170,6 +201,8 @@ export default {
 				})
 				this.getThemeColors();
 			}
+
+			this.resizeEditor();
 
 			if (editorStates[filePath]?.model) {
 				editor.setModel(editorStates[filePath].model);
@@ -214,6 +247,7 @@ export default {
 }
 
 .editor {
+	overflow: hidden;
 	height: 100%;
 	width: 100%;
 	display: grid;

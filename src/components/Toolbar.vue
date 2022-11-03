@@ -1,12 +1,18 @@
 <template>
-	<div class="toolbar">
-		<div class="item" v-for="button in buttons">
-			<button class="toolbar-btn" :disabled="button.disabled()" @click="button.action" :title="button.tooltip" v-if="button.action">
-				<Icon style="font-size:22px;margin:auto;" :icon="button.icon" :title="button.tooltip" />
-			</button>
-			<div v-else class="spacer"></div>
+	<div class="wrapper">
+		<div class="toolbar">
+			<div class="item" v-for="button in buttons">
+				<button class="toolbar-btn" :disabled="button.disabled()" @click="button.action" :title="button.tooltip" v-if="button.action">
+					<Icon style="font-size:22px;margin:auto;" :icon="button.icon" :title="button.tooltip" />
+				</button>
+				<div v-else class="spacer"></div>
+			</div>
+		</div>
+		<div class="toast" :class="editorStore.toast?.type">
+			<p v-if="editorStore.toast.title"><b>{{ editorStore.toast.title }}</b> : {{ editorStore.toast.text }}</p>
 		</div>
 	</div>
+
 </template>
 
 <script>
@@ -50,6 +56,15 @@ export default {
 						this.editorStore.saveFile();
 					},
 				},
+				rename: {
+					name: "rename",
+					icon: "mdi:rename-box",
+					tooltip: "Döp om",
+					disabled: () => this.editorStore.currentTab == null,
+					action: () => {
+						this.editorStore.moveFile();
+					},
+				},
 				delete: {
 					name: "delete",
 					icon: "mdi:delete",
@@ -62,20 +77,20 @@ export default {
 				blank0: {
 
 				},
-				sidebar: {
-					name: "sidebar",
-					icon: "mdi:table-column",
-					tooltip: "Dölj/Visa sidomeny",
-					disabled: () => false,
-					action: () => {
-						if (this.editorStore.paneSize == 100) {
-							this.$parent.paneResized([{}, { size: 80 }])
-						} else {
-							this.$parent.paneResized([{}, { size: 100 }])
-						}
+				// sidebar: {
+				// 	name: "sidebar",
+				// 	icon: "mdi:table-column",
+				// 	tooltip: "Dölj/Visa sidomeny",
+				// 	disabled: () => false,
+				// 	action: () => {
+				// 		if (this.editorStore.paneSize == 100) {
+				// 			this.$parent.paneResized([{}, { size: 80 }])
+				// 		} else {
+				// 			this.$parent.paneResized([{}, { size: 100 }])
+				// 		}
 
-					},
-				},
+				// 	},
+				// },
 				theme: {
 					name: "theme",
 					icon: "mdi:theme-light-dark",
@@ -83,6 +98,7 @@ export default {
 					disabled: () => false,
 					action: () => {
 						this.settings.theme = this.settings.theme === "vs-dark" ? "vs" : "vs-dark";
+						this.editorStore.flashMessage('Settings', 'Changed theme to ' + this.settings.theme, 'success');
 					},
 				},
 				indentDec: {
@@ -92,6 +108,7 @@ export default {
 					disabled: () => false,
 					action: () => {
 						this.settings.tabSize -= 2;
+						this.editorStore.flashMessage('Settings', 'Changed indent to ' + this.settings.tabSize, 'success');
 					},
 				},
 				indentInc: {
@@ -101,6 +118,7 @@ export default {
 					disabled: () => false,
 					action: () => {
 						this.settings.tabSize += 2;
+						this.editorStore.flashMessage('Settings', 'Changed indent to ' + this.settings.tabSize, 'success');
 					},
 				},
 				wordWrap: {
@@ -110,6 +128,7 @@ export default {
 					disabled: () => false,
 					action: () => {
 						this.settings.wordWrap = !this.settings.wordWrap;
+						this.editorStore.flashMessage('Settings', 'Changed wordWrap to ' + this.settings.wordWrap, 'success');
 					},
 				},
 				fullscreen: {
@@ -119,6 +138,7 @@ export default {
 					disabled: () => false,
 					action: () => {
 						this.$root.$el.parentElement.classList.toggle("fullscreen");
+						this.$emit('resize');
 					},
 				},
 			},
@@ -154,8 +174,37 @@ export default {
 </script>
 
 <style lang="scss">
-.toolbar {
+.wrapper {
+	display: grid;
+	grid-template-columns: auto max-content;
 	background: var(--bg-editor-inactive);
+}
+
+.toast {
+	padding: 0 20px;
+	display: grid;
+	border-radius: 6px;
+	margin: 4px;
+	place-items: center;
+
+	&.success {
+		background: greenyellow;
+		color: black
+	}
+
+	&.error {
+		background: rgb(228, 84, 84);
+		color: black;
+	}
+
+	p {
+		margin: 0;
+		padding: 0;
+	}
+}
+
+.toolbar {
+
 	display: grid;
 	grid-template-columns: repeat(auto-fit, 18px);
 	color: #333;

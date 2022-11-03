@@ -3,8 +3,15 @@
 
 <head>
 	<meta charset="UTF-8" />
-	<link rel="icon" type="image/svg+xml" href="/vite.svg" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<link
+		rel="icon"
+		type="image/svg+xml"
+		href="/vite.svg"
+	/>
+	<meta
+		name="viewport"
+		content="width=device-width, initial-scale=1.0"
+	/>
 	<title>Vite + Vue</title>
 	<style>
 		body,
@@ -20,12 +27,21 @@
 </head>
 
 <body>
-	<div id="editor" style="height:80vh">
-		<hc-editor files="http://localhost:3000/?action=files" open="http://localhost:3000/?action=open" theme="vs-dark"></hc-editor>
+	<div
+		id="editor"
+		style="height:80vh;width:90vw;"
+	>
+		<hc-editor
+			endpoint="http://localhost:3000"
+			theme="vs-dark"
+		></hc-editor>
 	</div>
 
 	<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-	<script type="module" src="/src/main.js"></script>
+	<script
+		type="module"
+		src="/src/main.js"
+	></script>
 </body>
 
 </html>
