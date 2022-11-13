@@ -1,12 +1,7 @@
-import { createApp, defineComponent } from 'vue'
+import { defineCustomElementWrapped } from './CustomElementWrapped';
 import { createPinia } from 'pinia';
-import './variables.css';
-import HCEditor from './HCEditor.vue';
 
-const app = createApp({});
-const pinia = createPinia();
+import HCEditor from './HCEditor.ce.vue';
 
-
-app.use(pinia);
-app.component('hc-editor', HCEditor);
-app.mount('#editor');
+const store = createPinia();
+window.customElements.define('up-code-editor', defineCustomElementWrapped(HCEditor, { plugins: [store], }));

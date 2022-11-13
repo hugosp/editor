@@ -25,6 +25,7 @@
 <script>
 import { Splitpanes, Pane } from 'splitpanes'
 import 'splitpanes/dist/splitpanes.css';
+import './assets/Main.scss';
 
 import Editor from './components/Editor.vue'
 import Explorer from './components/Explorer.vue'
@@ -98,28 +99,5 @@ export default {
 </script>
 
 <style lang="scss">
-#editor {
-	background: var(--bg-editor);
-	border: 2px solid var(--bg-editor);
-	font-family: var(--font);
 
-	margin: 0;
-	padding: 0;
-	box-sizing: border-box;
-
-	&.fullscreen {
-		position: fixed;
-		top: 0;
-		left: 0;
-		width: 100% !important;
-		height: 100vh !important;
-	}
-
-	.editor-wrapper {
-		height: 100%;
-		width: 100%;
-		display: grid;
-		grid-template-rows: 40px 1fr;
-	}
-}
 </style>

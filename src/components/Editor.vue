@@ -228,34 +228,5 @@ export default {
 </script>
 
 <style lang="scss">
-@font-face {
-	font-family: 'codicon';
-	src: url('https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.21.2/min/vs/base/browser/ui/codicons/codicon/codicon.ttf') format('truetype');
-}
 
-@import url('https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.21.2/min/vs/editor/editor.main.css');
-
-.tab {
-	&-dirty {
-		&::after {
-			content: '●';
-			color: #ff0000;
-			font-size: 0.8em;
-			margin-left: 0.5em;
-		}
-	}
-}
-
-.editor {
-	overflow: hidden;
-	height: 100%;
-	width: 100%;
-	display: grid;
-	grid-template-rows: 42px 1fr;
-}
-
-.code-editor {
-	background: var(--bg-editor);
-	height: 100%;
-}
 </style>

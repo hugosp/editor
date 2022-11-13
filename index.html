@@ -3,16 +3,11 @@
 
 <head>
 	<meta charset="UTF-8" />
-	<link
-		rel="icon"
-		type="image/svg+xml"
-		href="/vite.svg"
-	/>
 	<meta
 		name="viewport"
 		content="width=device-width, initial-scale=1.0"
 	/>
-	<title>Vite + Vue</title>
+	<title>HCEditor</title>
 	<style>
 		body,
 		html {
@@ -27,15 +22,13 @@
 </head>
 
 <body>
-	<div
-		id="editor"
+	<up-code-editor
+		endpoint="http://localhost:3000"
+		theme="vs-dark"
 		style="height:80vh;width:90vw;"
-	>
-		<hc-editor
-			endpoint="http://localhost:3000"
-			theme="vs-dark"
-		></hc-editor>
-	</div>
+	></up-code-editor>
+
+
 
 	<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 	<script

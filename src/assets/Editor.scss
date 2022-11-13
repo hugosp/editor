@@ -1,0 +1,27 @@
+
+.editor {
+
+	.tab {
+		&-dirty {
+			&::after {
+				content: '?';
+				color: #ff0000;
+				font-size: 0.8em;
+				margin-left: 0.5em;
+			}
+		}
+	}
+
+	.editor {
+		overflow: hidden;
+		height: 100%;
+		width: 100%;
+		display: grid;
+		grid-template-rows: 42px 1fr;
+	}
+
+	.code-editor {
+		background: var(--bg-editor);
+		height: 100%;
+	}
+}

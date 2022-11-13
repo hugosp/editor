@@ -1,0 +1,37 @@
+@font-face {
+	font-family: 'codicon';
+	src: url('https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.21.2/min/vs/base/browser/ui/codicons/codicon/codicon.ttf') format('truetype');
+}
+
+@import url('https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.21.2/min/vs/editor/editor.main.css');
+
+@import './variables.css';
+@import './Editor.scss';
+@import './Explorer.scss';
+@import './Toolbar.scss';
+@import './FileExplorerItem.scss';
+
+#editor {
+	background: var(--bg-editor);
+	border: 2px solid var(--bg-editor);
+	font-family: var(--font);
+
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+
+	&.fullscreen {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100% !important;
+		height: 100vh !important;
+	}
+
+	.editor-wrapper {
+		height: 100%;
+		width: 100%;
+		display: grid;
+		grid-template-rows: 40px 1fr;
+	}
+}

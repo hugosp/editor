@@ -1,14 +1,33 @@
 <template>
 	<div class="wrapper">
 		<div class="toolbar">
-			<div class="item" v-for="button in buttons">
-				<button class="toolbar-btn" :disabled="button.disabled()" @click="button.action" :title="button.tooltip" v-if="button.action">
-					<Icon style="font-size:22px;margin:auto;" :icon="button.icon" :title="button.tooltip" />
+			<div
+				class="item"
+				v-for="button in buttons"
+			>
+				<button
+					class="toolbar-btn"
+					:disabled="button.disabled()"
+					@click="button.action"
+					:title="button.tooltip"
+					v-if="button.action"
+				>
+					<Icon
+						style="font-size:22px;margin:auto;"
+						:icon="button.icon"
+						:title="button.tooltip"
+					/>
 				</button>
-				<div v-else class="spacer"></div>
+				<div
+					v-else
+					class="spacer"
+				></div>
 			</div>
 		</div>
-		<div class="toast" :class="editorStore.toast?.type">
+		<div
+			class="toast"
+			:class="editorStore.toast?.type"
+		>
 			<p v-if="editorStore.toast.title"><b>{{ editorStore.toast.title }}</b> : {{ editorStore.toast.text }}</p>
 		</div>
 	</div>
@@ -174,45 +193,5 @@ export default {
 </script>
 
 <style lang="scss">
-.wrapper {
-	display: grid;
-	grid-template-columns: auto max-content;
-	background: var(--bg-editor-inactive);
-}
 
-.toast {
-	padding: 0 20px;
-	display: grid;
-	border-radius: 6px;
-	margin: 4px;
-	place-items: center;
-
-	&.success {
-		background: greenyellow;
-		color: black
-	}
-
-	&.error {
-		background: rgb(228, 84, 84);
-		color: black;
-	}
-
-	p {
-		margin: 0;
-		padding: 0;
-	}
-}
-
-.toolbar {
-
-	display: grid;
-	grid-template-columns: repeat(auto-fit, 18px);
-	color: #333;
-	gap: var(--padd);
-	padding: var(--padd);
-
-	.item {
-		grid-column: span 2;
-	}
-}
 </style>

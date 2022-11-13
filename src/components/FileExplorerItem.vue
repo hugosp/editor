@@ -1,15 +1,29 @@
 <template>
 	<div class="explorer-item">
-		<div v-if="item.nodes" @click.native="showNodes = !showNodes">
+		<div
+			v-if="item.nodes"
+			@click.native="showNodes = !showNodes"
+		>
 			<div class="item-row">
 				<span :class="iconClass"></span>
 				<span>{{ item.name }}</span>
 			</div>
-			<FileExplorerItem @openFile="v => $emit('openFile', v)" v-for="sub in item.nodes" :item="sub" v-if="showFolder"></FileExplorerItem>
+			<FileExplorerItem
+				@openFile="v => $emit('openFile', v)"
+				v-for="sub in item.nodes"
+				:item="sub"
+				v-if="showFolder"
+			></FileExplorerItem>
 		</div>
 
-		<div v-else @click.native="openFile(item.path)">
-			<div class="item-row" :class="['file', currentTab == item.path ? 'active' : '']">
+		<div
+			v-else
+			@click.native="openFile(item.path)"
+		>
+			<div
+				class="item-row"
+				:class="['file', currentTab == item.path ? 'active' : '']"
+			>
 				<span :class="iconClass"></span>
 				<span>{{ item.name }}</span>
 			</div>
@@ -56,23 +70,5 @@ export default {
 </script>
 
 <style lang="scss">
-@import url('https://cdn.jsdelivr.net/npm/file-icon-vectors@1.0.0/dist/file-icon-vivid.min.css');
 
-.explorer-item {
-	padding-left: 5px;
-	overflow-x: hidden;
-
-	.item-row {
-		display: grid;
-		grid-template-columns: 18px 1fr;
-		gap: 2px;
-		cursor: pointer;
-		padding: 1px 3px;
-
-		&.active {
-			background-color: var(--bg-editor-indent-active);
-			color: var(--fg-file-active);
-		}
-	}
-}
 </style>

@@ -1,0 +1,19 @@
+@import url('https://cdn.jsdelivr.net/npm/file-icon-vectors@1.0.0/dist/file-icon-vivid.min.css');
+
+.explorer-item {
+	padding-left: 5px;
+	overflow-x: hidden;
+
+	.item-row {
+		display: grid;
+		grid-template-columns: 18px 1fr;
+		gap: 2px;
+		cursor: pointer;
+		padding: 1px 3px;
+
+		&.active {
+			background-color: var(--bg-editor-indent-active);
+			color: var(--fg-file-active);
+		}
+	}
+}
